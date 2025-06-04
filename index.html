@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Identity Reconciliation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f7f7f7;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    #responseOutput {
+      margin-top: 25px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 0 5px #ccc;
+    }
+
+    .result-title {
+      font-weight: bold;
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      background: #f0f0f0;
+      margin-bottom: 5px;
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+
+    .error {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Identity Reconciliation</h1>
+  <form id="identifyForm">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="example@domain.com" />
+
+    <label for="phoneNumber">Phone Number</label>
+    <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="1234567890" />
+
+    <button type="submit">Identify Contact</button>
+  </form>
+
+  <div id="responseOutput"></div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/identify';
+    const form = document.getElementById('identifyForm');
+    const output = document.getElementById('responseOutput');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = form.email.value.trim();
+      const phoneNumber = form.phoneNumber.value.trim();
+
+      if (!email && !phoneNumber) {
+        output.innerHTML = '<p class="error">Please provide at least an email or phone number.</p>';
+        return;
+      }
+
+      try {
+        output.innerHTML = '<p>Loading...</p>';
+
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email || null, phoneNumber: phoneNumber || null }),
+        });
+
+        if (!res.ok) {
+          const error = await res.json();
+          output.innerHTML = `<p class="error">Error: ${error.error || res.statusText}</p>`;
+          return;
+        }
+
+        const data = await res.json();
+        const contact = data.contact;
+
+        output.innerHTML = `
+          <div>
+            <div class="result-title">Primary Contact ID:</div>
+            <p>${contact.primaryContactId}</p>
+
+            <div class="result-title">Emails:</div>
+            <ul>${contact.emails.map(email => `<li>${email}</li>`).join('')}</ul>
+
+            <div class="result-title">Phone Numbers:</div>
+            <ul>${contact.phoneNumbers.map(num => `<li>${num}</li>`).join('')}</ul>
+
+            <div class="result-title">Secondary Contact IDs:</div>
+            <ul>${contact.secondaryContactIds.map(id => `<li>${id}</li>`).join('')}</ul>
+          </div>
+        `;
+      } catch (err) {
+        output.innerHTML = `<p class="error">Network error: ${err.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>

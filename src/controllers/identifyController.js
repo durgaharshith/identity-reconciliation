@@ -63,9 +63,10 @@ exports.identifyContact = async (req, res) => {
         WHERE (id = ${primaryContact.id} OR linkedId = ${primaryContact.id})
         AND deletedAt IS NULL
     `;
+    console.log('All linked contacts:', allLinked);
 
     const emails = [...new Set(allLinked.map(c => c.email).filter(Boolean))];
-    const phoneNumbers = [...new Set(allLinked.map(c => c.phoneNumber).filter(Boolean))];
+    const phoneNumbers = [...new Set(allLinked.map(c => c.phonenumber).filter(Boolean))];
     const secondaryContactIds = allLinked
       .filter(c => c.linkprecedence === 'secondary')
       .map(c => c.id);
