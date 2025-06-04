@@ -27,17 +27,18 @@ In real-world applications, a user may provide different combinations of email o
 
 ```text
 .
-├── controllers/
-│   └── identifyController.js
-├── models/
-├── routes/
-│   └── identifyRoutes.js
-├── utils/
-├── config/
-│   └── db.js
-├── .env
-├── server.js
-└── README.md
+└──index.html
+└── src
+    ├── controllers/
+    │   └── identifyController.js
+    ├── models/
+    ├── routes/
+    │   └── identifyRoutes.js
+    ├── utils/
+    ├── config/
+    │   └── db.js
+    ├── .env
+    └── server.js
 
 ```
 
